@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📍 MeetMidway
 
-## Getting Started
+> Schedule a meeting with multiple people and find the perfect halfway spot — coffee shop, restaurant, or bar.
 
-First, run the development server:
+## Features
+
+- 📅 **Calendar availability picker** — click dates, then choose Morning / Lunch / Afternoon
+- 🗺️ **Shareable invite link** — send to anyone, they add their availability in seconds
+- 📊 **Overlap heatmap** — color-coded calendar showing who's free when
+- 🏆 **Smart finalization** — organizer picks the best slot with one click
+- 📍 **Halfway venue finder** — geocodes everyone's city, finds the midpoint, and shows real coffee shops, restaurants, and bars nearby
+
+## Tech Stack
+
+- **Next.js 14** (App Router, TypeScript)
+- **Tailwind CSS**
+- **Vercel KV** (serverless Redis) for storage
+- **OpenStreetMap Nominatim** for free geocoding
+- **Foursquare Places API** for venue search
+
+---
+
+## Local Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> **Note:** Without API keys the app still works — it uses an in-memory store (resets on restart) and shows mock venue data.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Add a Foursquare key (optional, for real venues)
 
-## Learn More
+1. Sign up at [foursquare.com/developers](https://foursquare.com/developers)
+2. Create a new app → copy the API key
+3. Add to `.env.local`:
+   ```
+   FOURSQUARE_API_KEY=your_key_here
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy to Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx vercel
+```
 
-## Deploy on Vercel
+Then in the Vercel dashboard:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Storage → Create KV store** — link it to your project (auto-adds `KV_REST_API_URL` and `KV_REST_API_TOKEN` env vars)
+2. **Settings → Environment Variables** → add `FOURSQUARE_API_KEY`
+3. Redeploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## How It Works
+
+### Scheduling
+1. Organizer creates a meeting, picks their available dates/times and enters their city
+2. They share the generated link with participants
+3. Each participant opens the link, enters their name/city, and marks their availability
+4. The organizer sees a color-coded heatmap of overlapping availability
+5. Organizer clicks a cell to finalize — everyone is redirected to the results page
+
+### Venue Finding
+1. Each participant's city is geocoded via OpenStreetMap Nominatim
+2. The geographic centroid (average lat/lng) is calculated as the midpoint
+3. Foursquare Places API searches for coffee shops, restaurants, and bars within 8km
+4. Results are shown with photos, ratings, addresses, and directions links
