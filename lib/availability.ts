@@ -51,9 +51,38 @@ export function getNextDays(n: number): string[] {
   for (let i = 0; i < n; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    days.push(d.toISOString().split('T')[0]);
+    days.push(toLocalDate(d));
   }
   return days;
+}
+
+/**
+ * Returns all days from today through the last day of next month.
+ * e.g. called in May → dates through June 30
+ *      called in June → dates through July 31
+ */
+export function getDaysUntilEndOfNextMonth(): string[] {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // new Date(year, month+2, 0) → day 0 of two months ahead = last day of next month
+  const endOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+
+  const days: string[] = [];
+  const cur = new Date(today);
+  while (cur <= endOfNextMonth) {
+    days.push(toLocalDate(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return days;
+}
+
+/** Format a Date as YYYY-MM-DD in local time (avoids UTC-shift issues). */
+function toLocalDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 export function formatDate(isoDate: string): string {

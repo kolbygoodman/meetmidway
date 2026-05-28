@@ -1,7 +1,7 @@
 'use client';
 
 import type { DayAvailability, TimeSlot } from '@/lib/types';
-import { getNextDays, formatDate } from '@/lib/availability';
+import { getDaysUntilEndOfNextMonth, formatDate } from '@/lib/availability';
 import { TIME_SLOT_LABELS } from '@/lib/types';
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
   totalParticipants?: number;
 }
 
-const DAYS = getNextDays(28);
+const DAYS = getDaysUntilEndOfNextMonth();
 const SLOTS: TimeSlot[] = ['morning', 'lunch', 'afternoon'];
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
